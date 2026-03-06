@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dry Bean Classification System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-card: #161618;
+            --border-color: #2a2a2e;
+            --text-primary: #e8e8e8;
+            --text-secondary: #8a8a8f;
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-orange: #f97316;
+            --accent-purple: #a855f7;
+            --accent-red: #ef4444;
+            --accent-cyan: #06b6d4;
+            --accent-yellow: #eab308;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .logo h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo span {
+            color: var(--accent-green);
+        }
+        
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 13px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-red);
+        }
+        
+        .status-dot.active {
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .card-title i {
+            color: var(--accent-green);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-cyan);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Class Distribution */
+        .class-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .class-item:last-child {
+            border-bottom: none;
+        }
+        
+        .class-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .class-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        
+        .class-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            margin: 0 16px;
+            overflow: hidden;
+        }
+        
+        .class-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .class-count {
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 50px;
+            text-align: right;
+        }
+        
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .form-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--accent-green);
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        /* Result Card */
+        .result-card {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-card.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .result-class {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .result-confidence {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        
+        .probabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .prob-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .prob-class {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        
+        .prob-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        /* Sample Data Buttons */
+        .sample-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .sample-btn {
+            padding: 6px 12px;
+            font-size: 11px;
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .sample-btn:hover {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+        }
+        
+        /* Training Section */
+        .training-status {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .accuracy-display {
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .accuracy-display span {
+            color: var(--accent-green);
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Full Width Card */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        /* Feature Table */
+        .feature-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .feature-table th,
+        .feature-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .feature-table th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 10px;
+        }
+        
+        .feature-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+        
+        /* Alert Messages */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+        
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        /* Scrollable Table Container */
+        .table-container {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        /* Bean Icon Animation */
+        .bean-icon {
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon bean-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <h1>Dry<span>Bean</span> Classifier</h1>
+            </div>
+            <div class="status-badge" data-testid="model-status-badge">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Checking...</span>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" data-testid="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalSamples">-</div>
+                <div class="stat-label">Total Samples</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalFeatures">-</div>
+                <div class="stat-label">Features</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalClasses">-</div>
+                <div class="stat-label">Bean Classes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="modelAccuracy">-</div>
+                <div class="stat-label">Model Accuracy</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Class Distribution -->
+            <div class="card" data-testid="class-distribution-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Class Distribution
+                    </div>
+                </div>
+                <div id="classDistribution"></div>
+            </div>
+
+            <!-- Model Training -->
+            <div class="card" data-testid="model-training-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-brain"></i>
+                        Model Training
+                    </div>
+                </div>
+                <div class="training-status">
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">
+                        Train a Random Forest classifier on the dry bean dataset.
+                    </p>
+                    <div class="accuracy-display">
+                        <span id="trainedAccuracy">--</span>%
+                    </div>
+                    <p style="text-align: center; color: var(--text-secondary); font-size: 12px;">Model Accuracy</p>
+                </div>
+                <div class="loading" id="trainingLoading">
+                    <div class="spinner"></div>
+                    <span>Training model...</span>
+                </div>
+                <div id="trainingAlert"></div>
+                <button class="btn btn-primary" style="width: 100%;" onclick="trainModel()" data-testid="train-model-btn">
+                    <i class="fas fa-play"></i>
+                    Train Model
+                </button>
+            </div>
+
+            <!-- Prediction Form -->
+            <div class="card full-width" data-testid="prediction-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-magic"></i>
+                        Bean Classification
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 12px;">Load sample data:</p>
+                    <div class="sample-buttons" id="sampleButtons" data-testid="sample-buttons"></div>
+                </div>
+
+                <form id="predictionForm" data-testid="prediction-form">
+                    <div class="form-grid" id="predictionInputs"></div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary" data-testid="predict-btn">
+                            <i class="fas fa-search"></i>
+                            Classify Bean
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearForm()" data-testid="clear-form-btn">
+                            <i class="fas fa-eraser"></i>
+                            Clear
+                        </button>
+                    </div>
+                </form>
+
+                <div class="loading" id="predictionLoading">
+                    <div class="spinner"></div>
+                    <span>Classifying...</span>
+                </div>
+
+                <div class="result-card" id="resultCard" data-testid="result-card">
+                    <div class="result-header">
+                        <div class="result-class" id="predictedClass">-</div>
+                        <div class="result-confidence">Confidence: <span id="confidence">-</span></div>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 12px; text-align: center; margin-bottom: 12px;">All Probabilities:</p>
+                    <div class="probabilities-grid" id="probabilities"></div>
+                </div>
+            </div>
+
+            <!-- Feature Statistics -->
+            <div class="card full-width" data-testid="feature-statistics-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-table"></i>
+                        Feature Statistics
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="feature-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Mean</th>
+                                <th>Std Dev</th>
+                                <th>Min</th>
+                                <th>Max</th>
+                            </tr>
+                        </thead>
+                        <tbody id="featureStats"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        
+        const classColors = {
+            'DERMASON': '#22c55e',
+            'SIRA': '#3b82f6',
+            'SEKER': '#f97316',
+            'HOROZ': '#a855f7',
+            'CALI': '#06b6d4',
+            'BARBUNYA': '#ef4444',
+            'BOMBAY': '#eab308'
+        };
+
+        const featureLabels = [
+            'Area', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength',
+            'AspectRation', 'Eccentricity', 'ConvexArea', 'EquivDiameter',
+            'Extent', 'Solidity', 'roundness', 'Compactness',
+            'ShapeFactor1', 'ShapeFactor2', 'ShapeFactor3', 'ShapeFactor4'
+        ];
+
+        let sampleData = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDatasetInfo();
+            loadStatistics();
+            loadSampleData();
+            checkModelStatus();
+            createInputFields();
+        });
+
+        // Create input fields
+        function createInputFields() {
+            const container = document.getElementById('predictionInputs');
+            container.innerHTML = featureLabels.map(feature => `
+                <div class="form-group">
+                    <label class="form-label">${feature}</label>
+                    <input type="number" step="any" class="form-input" 
+                           name="${feature}" id="input_${feature}" 
+                           data-testid="input-${feature.toLowerCase()}" required>
+                </div>
+            `).join('');
+        }
+
+        // Load dataset info
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`${API_URL}/dataset-info`);
+                const data = await response.json();
+                
+                document.getElementById('totalSamples').textContent = data.total_samples.toLocaleString();
+                document.getElementById('totalFeatures').textContent = data.total_features;
+                document.getElementById('totalClasses').textContent = data.class_names.length;
+                
+                // Render class distribution
+                const maxCount = Math.max(...Object.values(data.class_distribution));
+                const distContainer = document.getElementById('classDistribution');
+                distContainer.innerHTML = Object.entries(data.class_distribution)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([cls, count]) => `
+                        <div class="class-item" data-testid="class-item-${cls.toLowerCase()}">
+                            <div class="class-name">
+                                <div class="class-color" style="background: ${classColors[cls] || '#888'}"></div>
+                                <span>${cls}</span>
+                            </div>
+                            <div class="class-bar">
+                                <div class="class-bar-fill" style="width: ${(count/maxCount)*100}%; background: ${classColors[cls] || '#888'}"></div>
+                            </div>
+                            <span class="class-count">${count}</span>
+                        </div>
+                    `).join('');
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        // Load statistics
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_URL}/statistics`);
+                const data = await response.json();
+                
+                const tbody = document.getElementById('featureStats');
+                tbody.innerHTML = Object.entries(data.feature_statistics).map(([feature, stats]) => `
+                    <tr>
+                        <td style="font-weight: 500;">${feature}</td>
+                        <td>${stats.mean.toFixed(4)}</td>
+                        <td>${stats.std.toFixed(4)}</td>
+                        <td>${stats.min.toFixed(4)}</td>
+                        <td>${stats.max.toFixed(4)}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Load sample data
+        async function loadSampleData() {
+            try {
+                const response = await fetch(`${API_URL}/sample-data`);
+                sampleData = await response.json();
+                
+                const container = document.getElementById('sampleButtons');
+                container.innerHTML = Object.keys(sampleData).map(cls => `
+                    <button type="button" class="sample-btn" onclick="loadSample('${cls}')" 
+                            data-testid="sample-btn-${cls.toLowerCase()}">
+                        ${cls}
+                    </button>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading sample data:', error);
+            }
+        }
+
+        // Load sample into form
+        function loadSample(className) {
+            const sample = sampleData[className];
+            if (sample) {
+                featureLabels.forEach(feature => {
+                    const input = document.getElementById(`input_${feature}`);
+                    if (input && sample[feature] !== undefined) {
+                        input.value = sample[feature];
+                    }
+                });
+            }
+        }
+
+        // Check model status
+        async function checkModelStatus() {
+            try {
+                const response = await fetch(`${API_URL}/model-status`);
+                const data = await response.json();
+                
+                const dot = document.getElementById('statusDot');
+                const text = document.getElementById('statusText');
+                
+                if (data.trained) {
+                    dot.classList.add('active');
+                    text.textContent = 'Model Ready';
+                    if (data.accuracy) {
+                        document.getElementById('modelAccuracy').textContent = (data.accuracy * 100).toFixed(1) + '%';
+                        document.getElementById('trainedAccuracy').textContent = (data.accuracy * 100).toFixed(1);
+                    }
+                } else {
+                    dot.classList.remove('active');
+                    text.textContent = 'Not Trained';
+                    document.getElementById('modelAccuracy').textContent = '-';
+                }
+            } catch (error) {
+                console.error('Error checking model status:', error);
+            }
+        }
+
+        // Train model
+        async function trainModel() {
+            const loading = document.getElementById('trainingLoading');
+            const alertDiv = document.getElementById('trainingAlert');
+            
+            loading.classList.add('show');
+            alertDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_URL}/train`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alertDiv.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${data.message}</div>`;
+                    document.getElementById('trainedAccuracy').textContent = (data.accuracy * 100).toFixed(1);
+                    document.getElementById('modelAccuracy').textContent = (data.accuracy * 100).toFixed(1) + '%';
+                    checkModelStatus();
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Training failed</div>`;
+                }
+            } catch (error) {
+                alertDiv.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Error: ${error.message}</div>`;
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+
+        // Prediction form submit
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loading = document.getElementById('predictionLoading');
+            const resultCard = document.getElementById('resultCard');
+            
+            loading.classList.add('show');
+            resultCard.classList.remove('show');
+            
+            try {
+                const formData = {};
+                featureLabels.forEach(feature => {
+                    formData[feature] = parseFloat(document.getElementById(`input_${feature}`).value);
+                });
+                
+                const response = await fetch(`${API_URL}/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Prediction failed');
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('predictedClass').textContent = data.predicted_class;
+                document.getElementById('predictedClass').style.color = classColors[data.predicted_class] || '#22c55e';
+                document.getElementById('confidence').textContent = (data.confidence * 100).toFixed(2) + '%';
+                
+                const probContainer = document.getElementById('probabilities');
+                probContainer.innerHTML = Object.entries(data.all_probabilities)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([cls, prob]) => `
+                        <div class="prob-item">
+                            <div class="prob-class">${cls}</div>
+                            <div class="prob-value" style="color: ${classColors[cls] || '#888'}">${(prob * 100).toFixed(1)}%</div>
+                        </div>
+                    `).join('');
+                
+                resultCard.classList.add('show');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('predictionForm').reset();
+            document.getElementById('resultCard').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
